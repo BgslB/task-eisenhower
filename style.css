@@ -5,91 +5,182 @@
 }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f5f5f5;
-  color: #333;
-  min-height: 100vh;
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: #fcfaf8; /* Çok hafif krem/pudra arka plan */
+  color: #444;
+  line-height: 1.6;
 }
 
 /* HEADER */
 .header {
+  padding: 20px 40px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .header h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #222;
 }
 
-.lang-switcher button {
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 0.85rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: #666;
-}
-
-.lang-switcher button.active {
-  background: #333;
-  color: #fff;
-}
-
-/* MATRİS */
+/* MATRİS YAPISI */
 .matrix {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 12px;
-  padding: 16px;
-  height: 420px;
+  grid-template-rows: auto auto;
+  gap: 20px; /* Kutuların arası açıldı */
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .quadrant {
-  border-radius: 12px;
-  padding: 14px;
+  min-height: 220px;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .quadrant-header {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 10px;
-  opacity: 0.7;
+  letter-spacing: 1.2px;
+  margin-bottom: 5px;
+  opacity: 0.6;
 }
 
 .quadrant-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
+/* RENKLER - GERÇEK PUDRA TONLARI */
+.q-do { background-color: #fff0f0; border-bottom: 4px solid #fcc; } /* Soft Kırmızı */
+.q-schedule { background-color: #f0f4ff; border-bottom: 4px solid #cde; } /* Soft Mavi */
+.q-delegate { background-color: #fff9e6; border-bottom: 4px solid #fec; } /* Soft Sarı */
+.q-eliminate { background-color: #f5f5f5; border-bottom: 4px solid #ddd; } /* Soft Gri */
+
 .quadrant-tasks {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  flex: 1;
+  gap: 8px;
 }
 
 .task-chip {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  padding: 6px 10p
-  
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.task-chip:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* TABLO VE HAVUZ */
+.task-pool {
+  max-width: 1200px;
+  margin: 20px auto 50px;
+  padding: 0 30px;
+}
+
+.task-pool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* Satırların arası açıldı */
+}
+
+.task-table th {
+  padding: 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #888;
+  text-align: left;
+}
+
+.task-table td {
+  background: #fff;
+  padding: 15px 10px;
+  font-size: 0.9rem;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.task-table td:first-child { border-left: 1px solid #f0f0f0; border-radius: 12px 0 0 12px; }
+.task-table td:last-child { border-right: 1px solid #f0f0f0; border-radius: 0 12px 12px 0; }
+
+/* DÜĞMELER */
+.btn-add {
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang-switcher button {
+  background: none;
+  border: 1px solid #eee;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+
+.lang-switcher button.active {
+  background: #222;
+  color: #fff;
+  border-color: #222;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 30px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
