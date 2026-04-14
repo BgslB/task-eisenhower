@@ -134,11 +134,21 @@ let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
 let showArchive = false;
 let editingTaskId = null;
 
+// ============ YARDIMCI FONKSİYONLAR ============
+function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function formatDate(dateStr) { if(!dateStr) return ""; const [y, m, d] = dateStr.split('-'); return `${d}.${m}.${y}`; }
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+function getLang() { return LANGS[currentLang]; }
+function getStatusIcon(status) {
+  const icons = { beklemede: '🟡', devam: '🔵', delege: '🟠', geri: '🔴', tamamlandi: '✅' };
+  return icons[status] || '🟡';
+}
+
 // ============ GÜNLÜK AKTARIM ============
 function checkDailyTransfer() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getToday();
   const lastOpen = localStorage.getItem('lastOpen');
-
   if (lastOpen && lastOpen !== today) {
     tasks = tasks.map(task => {
       if (task.status !== 'tamamlandi' && task.date !== today) {
@@ -151,33 +161,90 @@ function checkDailyTransfer() {
   localStorage.setItem('lastOpen', today);
 }
 
-// ============ YARDIMCI FONKSİYONLAR ============
-function saveTasks() {
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-}
+// ============ GLOBAL FONKSİYONLAR (Window'a bağlı) ============
+window.setLang = function(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  renderAll();
+};
 
-function getToday() {
-  return new Date().toISOString().split('T')[0];
-}
+window.updateStatus = function(id, newStatus) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  task.status = newStatus;
+  const autoCategory = STATUS_TO_CATEGORY[newStatus];
+  if (autoCategory) task.category = autoCategory;
+  saveTasks();
+  renderAll();
+};
 
-function formatDate(dateStr) {
-  const [y, m, d] = dateStr.split('-');
-  return `${d}.${m}.${y}`;
-}
+window.updateCategory = function(id, newCategory) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  task.category = newCategory;
+  saveTasks();
+  renderAll();
+};
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-function getLang() {
-  return LANGS[currentLang];
-}
-
-// ============ RENDER MATRİS ============
-function renderMatrix() {
+window.openAddModal = function() {
+  editingTaskId = null;
   const L = getLang();
-  const activeTasks = tasks.filter(t => t.status !== 'tamamlandi');
+  document.getElementById('modal-title').textContent = L.newTask;
+  document.getElementById('task-name-input').value = '';
+  document.getElementById('task-category-input').value = 'do';
+  document.getElementById('task-status-input').value = 'beklemede';
+  document.getElementById('task-notes-input').value = '';
+  document.getElementById('modal-overlay').style.display = 'flex';
+};
 
+window.openEditModal = function(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  editingTaskId = id;
+  document.getElementById('modal-title').textContent = task.name;
+  document.getElementById('task-name-input').value = task.name;
+  document.getElementById('task-category-input').value = task.category;
+  document.getElementById('task-status-input').value = task.status;
+  document.getElementById('task-notes-input').value = task.notes || '';
+  document.getElementById('modal-overlay').style.display = 'flex';
+};
+
+window.closeModal = function() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  editingTaskId = null;
+};
+
+window.saveModal = function() {
+  const name = document.getElementById('task-name-input').value.trim();
+  if (!name) return;
+  const category = document.getElementById('task-category-input').value;
+  const status = document.getElementById('task-status-input').value;
+  const notes = document.getElementById('task-notes-input').value.trim();
+
+  if (editingTaskId) {
+    const task = tasks.find(t => t.id === editingTaskId);
+    if (task) {
+      task.name = name;
+      task.category = category;
+      task.status = status;
+      task.notes = notes;
+    }
+  } else {
+    tasks.push({ id: generateId(), name, category, status, notes, date: getToday() });
+  }
+  saveTasks();
+  window.closeModal();
+  renderAll();
+};
+
+window.toggleArchive = function() {
+  showArchive = !showArchive;
+  renderAll();
+};
+
+// ============ RENDER SİSTEMİ ============
+function renderMatrix() {
+  const activeTasks = tasks.filter(t => t.status !== 'tamamlandi');
   ['do', 'schedule', 'delegate', 'eliminate'].forEach(q => {
     const container = document.getElementById(`tasks-${q}`);
     if (!container) return;
@@ -191,21 +258,8 @@ function renderMatrix() {
   });
 }
 
-function getStatusIcon(status) {
-  const icons = {
-    beklemede: '🟡',
-    devam: '🔵',
-    delege: '🟠',
-    geri: '🔴',
-    tamamlandi: '✅'
-  };
-  return icons[status] || '🟡';
-}
-
-// ============ RENDER TABLO ============
 function renderTable() {
   const L = getLang();
-  const today = getToday();
   const tbody = document.getElementById('task-tbody');
   if (!tbody) return;
 
@@ -224,10 +278,56 @@ function renderTable() {
       <td style="white-space:nowrap">${formatDate(t.date)}</td>
       <td>
         <select onchange="updateCategory('${t.id}', this.value)">
-          ${['do','schedule','delegate','eliminate'].map(c => `
-            <option value="${c}" ${t.category === c ? 'selected' : ''}>${c.toUpperCase()}</option>
-          `).join('')}
+          ${['do','schedule','delegate','eliminate'].map(c => `<option value="${c}" ${t.category === c ? 'selected' : ''}>${c.toUpperCase()}</option>`).join('')}
         </select>
       </td>
       <td>
-      
+        <select onchange="updateStatus('${t.id}', this.value)">
+          ${Object.entries(L.statuses).map(([k,v]) => `<option value="${k}" ${t.status === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </td>
+      <td style="color:#888;font-size:0.78rem;max-width:150px">${t.notes || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function renderAll() {
+  const L = getLang();
+  // Yazıları Güncelle
+  document.getElementById('app-name').textContent = L.appName;
+  document.getElementById('label-do').textContent = L.do;
+  document.getElementById('label-schedule').textContent = L.schedule;
+  document.getElementById('label-delegate').textContent = L.delegate;
+  document.getElementById('label-eliminate').textContent = L.eliminate;
+  document.getElementById('sub-do').textContent = L.urgent;
+  document.getElementById('sub-schedule').textContent = L.notUrgent;
+  document.getElementById('sub-delegate').textContent = L.urgentNotImportant;
+  document.getElementById('sub-eliminate').textContent = L.neither;
+  document.getElementById('pool-title').textContent = L.taskPool;
+  document.getElementById('btn-add').textContent = L.addTask;
+  document.getElementById('th-name').textContent = L.taskName;
+  document.getElementById('th-date').textContent = L.date;
+  document.getElementById('th-category').textContent = L.category;
+  document.getElementById('th-status').textContent = L.status;
+  document.getElementById('th-notes').textContent = L.notes;
+  document.getElementById('archive-toggle').textContent = showArchive ? L.hideArchive : L.showArchive;
+  document.getElementById('btn-save').textContent = L.save;
+  document.getElementById('btn-cancel').textContent = L.cancel;
+  
+  // Dil Butonlarını Güncelle
+  ['tr','en','it'].forEach(l => {
+    document.getElementById(`lang-${l}`).classList.toggle('active', l === currentLang);
+  });
+
+  renderMatrix();
+  renderTable();
+}
+
+// ============ INIT ============
+window.onload = () => {
+  checkDailyTransfer();
+  renderAll();
+  if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+};
