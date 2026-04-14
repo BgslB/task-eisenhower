@@ -13,40 +13,34 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <h1 id="app-name">GÖREV MATRİSİ</h1>
     <div class="lang-switcher">
-      <button id="lang-tr" class="active" onclick="setLang('tr')">TR</button>
+      <button id="lang-tr" onclick="setLang('tr')">TR</button>
       <button id="lang-en" onclick="setLang('en')">EN</button>
       <button id="lang-it" onclick="setLang('it')">IT</button>
     </div>
   </header>
 
-  <!-- MATRİS -->
   <div class="matrix">
-    <!-- DO -->
     <div class="quadrant q-do">
       <div class="quadrant-header" id="sub-do">ACİL & ÖNEMLİ</div>
       <div class="quadrant-title" id="label-do">Hemen Yap</div>
       <div class="quadrant-tasks" id="tasks-do"></div>
     </div>
 
-    <!-- SCHEDULE -->
     <div class="quadrant q-schedule">
       <div class="quadrant-header" id="sub-schedule">ÖNEMLİ, ACİL DEĞİL</div>
       <div class="quadrant-title" id="label-schedule">Planla</div>
       <div class="quadrant-tasks" id="tasks-schedule"></div>
     </div>
 
-    <!-- DELEGATE -->
     <div class="quadrant q-delegate">
       <div class="quadrant-header" id="sub-delegate">ACİL, ÖNEMLİ DEĞİL</div>
       <div class="quadrant-title" id="label-delegate">Delege Et</div>
       <div class="quadrant-tasks" id="tasks-delegate"></div>
     </div>
 
-    <!-- ELIMINATE -->
     <div class="quadrant q-eliminate">
       <div class="quadrant-header" id="sub-eliminate">NE ACİL NE ÖNEMLİ</div>
       <div class="quadrant-title" id="label-eliminate">Yapma / Sil</div>
@@ -54,9 +48,6 @@
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <!-- GÖREV HAVUZU -->
   <div class="task-pool">
     <div class="task-pool-header">
       <h2 id="pool-title">GÖREV HAVUZU</h2>
@@ -66,6 +57,7 @@
     <table class="task-table">
       <thead>
         <tr>
+          <th style="width: 50px;">No</th>
           <th id="th-name">Görev Adı</th>
           <th id="th-date">Tarih</th>
           <th id="th-category">Kategori</th>
@@ -79,7 +71,6 @@
     <div class="archive-toggle" id="archive-toggle" onclick="toggleArchive()">Arşivi Göster</div>
   </div>
 
-  <!-- MODAL -->
   <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
     <div class="modal">
       <h3 id="modal-title">Yeni Görev</h3>
