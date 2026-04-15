@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Task Eisenhower PRO</title>
-  <link rel="stylesheet" href="style.css?v=v4_final" />
+  <link rel="stylesheet" href="style.css?v=v5_final" />
 </head>
 <body>
 
@@ -73,18 +73,31 @@
     <div class="modal">
       <h3 id="modal-title">Görev Detayı</h3>
       <input type="text" id="task-name-input" placeholder="Görev adı..." />
+      
       <div class="modal-row">
         <select id="task-category-input" onchange="updateCategoryUI()"></select>
         <select id="task-status-input" onchange="updateStatusUI()"></select>
       </div>
+
       <div id="delegate-to-wrapper" style="display:none">
         <input type="text" id="task-delegate-input" placeholder="Kime delege edildi?" />
       </div>
-      <div class="modal-row">
-        <label style="font-size:0.7rem; color:#888">Bitiş Tarihi:</label>
-        <input type="date" id="task-deadline-input" />
+
+      <div class="modal-row" id="date-edit-wrapper" style="display:none">
+        <div class="date-group">
+          <label>Giriş:</label>
+          <input type="date" id="task-start-input" />
+        </div>
+        <div class="date-group">
+          <label>Bitiş:</label>
+          <input type="date" id="task-deadline-input" />
+        </div>
       </div>
+
       <textarea id="task-notes-input" placeholder="Detaylar..."></textarea>
+
+      <div id="modal-history" class="modal-history"></div>
+
       <div class="modal-buttons">
         <button class="btn-cancel" onclick="closeModal()">İptal</button>
         <button class="btn-save" onclick="saveModal()">Kaydet</button>
@@ -92,6 +105,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=v4_final"></script>
+  <script src="app.js?v=v5_final"></script>
 </body>
 </html>
