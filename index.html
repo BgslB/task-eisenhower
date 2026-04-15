@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Task Eisenhower V3</title>
-  <link rel="stylesheet" href="style.css?v=v3" />
+  <link rel="stylesheet" href="style.css?v=v3_final" />
 </head>
 <body>
   <header class="header">
@@ -66,22 +66,20 @@
         <h3 id="modal-title">Görev Detayı</h3>
         <button id="btn-download" class="btn-mini" onclick="downloadHistory()" style="display:none">📥 Log</button>
       </div>
-      <input type="text" id="task-name-input" placeholder="" />
+      <input type="text" id="task-name-input" />
       <div class="modal-row">
         <select id="task-category-input"></select>
         <select id="task-status-input" onchange="toggleDelegateField()"></select>
       </div>
       <div id="delegate-to-wrapper" style="display:none">
-        <input type="text" id="task-delegate-input" placeholder="" />
+        <input type="text" id="task-delegate-input" />
       </div>
       <div class="modal-row">
         <label id="lbl-deadline">Bitiş Tarihi:</label>
         <input type="date" id="task-deadline-input" />
       </div>
-      <textarea id="task-notes-input" placeholder=""></textarea>
-      
+      <textarea id="task-notes-input"></textarea>
       <div id="version-info" style="font-size:0.7rem; color:#aaa; text-align:right"></div>
-
       <div class="modal-buttons">
         <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">İptal</button>
         <button class="btn-save" id="btn-save" onclick="saveModal()">Kaydet</button>
@@ -89,6 +87,11 @@
     </div>
   </div>
 
-  <script src="app.js?v=v3"></script>
+  <footer class="footer">
+    <p>In onore di <strong>Onur Safi</strong>, con profondo rispetto.</p>
+    <p class="signature">Sviluppato da <strong>BgslB</strong></p>
+  </footer>
+
+  <script src="app.js?v=v3_final"></script>
 </body>
 </html>
