@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Eisenhower</title>
-  <link rel="stylesheet" href="style.css?v=final" />
+  <title>Task Eisenhower PRO</title>
+  <link rel="stylesheet" href="style.css?v=final_v2" />
 </head>
 <body>
 
@@ -48,11 +48,11 @@
     <table class="task-table">
       <thead>
         <tr>
-          <th style="width: 50px;">No</th>
-          <th id="th-name">Görev Adı</th>
-          <th id="th-date">Tarih</th>
-          <th id="th-category">Kategori</th>
-          <th id="th-status">Durum</th>
+          <th style="width: 40px;">No</th>
+          <th id="th-name">Görev</th>
+          <th id="th-created">Giriş</th>
+          <th id="th-deadline">Bitiş</th>
+          <th id="th-status">Durum/Kime</th>
           <th id="th-notes">Notlar</th>
         </tr>
       </thead>
@@ -63,11 +63,20 @@
 
   <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-      <h3 id="modal-title">Yeni Görev</h3>
-      <input type="text" id="task-name-input" placeholder="" />
-      <select id="task-category-input"></select>
-      <select id="task-status-input"></select>
-      <textarea id="task-notes-input" placeholder=""></textarea>
+      <h3 id="modal-title">Görev Detayı</h3>
+      <input type="text" id="task-name-input" placeholder="Görev adı..." />
+      <div class="modal-row">
+        <select id="task-category-input"></select>
+        <select id="task-status-input" onchange="toggleDelegateField()"></select>
+      </div>
+      <div id="delegate-to-wrapper" style="display:none">
+        <input type="text" id="task-delegate-input" placeholder="Kime delege edildi? (Örn: Andrea, Lojistik)" />
+      </div>
+      <div class="modal-row">
+        <label style="font-size:0.7rem; color:#888" id="lbl-deadline">Bitiş Tarihi:</label>
+        <input type="date" id="task-deadline-input" />
+      </div>
+      <textarea id="task-notes-input" placeholder="Detaylar..."></textarea>
       <div class="modal-buttons">
         <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">İptal</button>
         <button class="btn-save" id="btn-save" onclick="saveModal()">Kaydet</button>
@@ -75,6 +84,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=final"></script>
+  <script src="app.js?v=final_v2"></script>
 </body>
 </html>

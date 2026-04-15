@@ -5,7 +5,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fcfaf8; color: #444;
 .header h1 { font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; }
 
 .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-.quadrant { min-height: 180px; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+.quadrant { min-height: 200px; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
 
 .q-do { background: #fff0f0; border-left: 5px solid #ffb3b3; }
 .q-schedule { background: #f0f4ff; border-left: 5px solid #adc9ff; }
@@ -15,30 +15,29 @@ body { font-family: 'Inter', sans-serif; background-color: #fcfaf8; color: #444;
 .quadrant-header { font-size: 0.6rem; font-weight: 700; opacity: 0.5; margin-bottom: 2px; }
 .quadrant-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
 
-.task-chip { background: rgba(255,255,255,0.8); padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; margin-bottom: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(0,0,0,0.03); }
+.task-chip { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 8px; cursor: pointer; border: 1px solid rgba(0,0,0,0.03); }
+.chip-meta { font-size: 0.65rem; color: #888; margin-top: 4px; display: flex; justify-content: space-between; }
 
 .task-pool { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.task-pool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-
 .task-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
 .task-table th { padding: 10px; font-size: 0.7rem; color: #999; text-align: left; text-transform: uppercase; }
-.task-table td { background: #fff; padding: 12px 10px; font-size: 0.85rem; border-top: 1px solid #f9f9f9; border-bottom: 1px solid #f9f9f9; }
+.task-table td { background: #fff; padding: 12px 10px; font-size: 0.85rem; vertical-align: middle; }
 .task-table tr:hover td { background: #fffdf7; }
 .task-table td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid #f0f0f0; }
 .task-table td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid #f0f0f0; }
 
-.table-select { border: 1px solid #eee; padding: 4px; border-radius: 6px; font-size: 0.75rem; width: 100%; cursor: pointer; background: #fff; }
-.notes-cell { color: #888; font-size: 0.75rem; cursor: pointer; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.delegate-badge { background: #fff3cd; color: #856404; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; display: block; margin-top: 2px; }
+.table-select { border: 1px solid #eee; padding: 4px; border-radius: 6px; font-size: 0.75rem; width: 100%; background: #fff; }
 
-.btn-add { background: #222; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
-.lang-switcher button { background: #f0f0f0; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.65rem; margin-left: 4px; font-weight: 600; }
+.btn-add { background: #222; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.lang-switcher button { background: #f0f0f0; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.65rem; margin-left: 4px; }
 .lang-switcher button.active { background: #222; color: #fff; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.modal { background: #fff; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
-.modal input, .modal select, .modal textarea { padding: 10px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 0.9rem; }
-.modal textarea { height: 100px; resize: none; }
-.modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
+.modal { background: #fff; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; }
+.modal-row { display: flex; gap: 10px; align-items: center; }
+.modal input, .modal select, .modal textarea { padding: 10px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 0.9rem; width: 100%; }
+.modal textarea { height: 80px; resize: none; }
 .btn-save { flex: 2; background: #222; color: #fff; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; }
 .btn-cancel { flex: 1; background: #f0f0f0; border: none; padding: 12px; border-radius: 10px; cursor: pointer; }
 
