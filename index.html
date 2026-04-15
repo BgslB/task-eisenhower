@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Eisenhower V3</title>
+  <title>Task Eisenhower PRO</title>
   <link rel="stylesheet" href="style.css?v=v3_final" />
 </head>
 <body>
+
   <header class="header">
     <h1 id="app-name">GÖREV MATRİSİ</h1>
     <div class="lang-switcher">
@@ -17,22 +18,22 @@
   </header>
 
   <div class="matrix">
-    <div class="quadrant q-do" ondragover="allowDrop(event)" ondrop="drop(event, 'do')">
+    <div class="quadrant q-do">
       <div class="quadrant-header" id="sub-do">ACİL & ÖNEMLİ</div>
       <div class="quadrant-title" id="label-do">Hemen Yap</div>
       <div class="quadrant-tasks" id="tasks-do"></div>
     </div>
-    <div class="quadrant q-schedule" ondragover="allowDrop(event)" ondrop="drop(event, 'schedule')">
+    <div class="quadrant q-schedule">
       <div class="quadrant-header" id="sub-schedule">ÖNEMLİ, ACİL DEĞİL</div>
       <div class="quadrant-title" id="label-schedule">Planla</div>
       <div class="quadrant-tasks" id="tasks-schedule"></div>
     </div>
-    <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
+    <div class="quadrant q-delegate">
       <div class="quadrant-header" id="sub-delegate">ACİL, ÖNEMLİ DEĞİL</div>
       <div class="quadrant-title" id="label-delegate">Delege Et</div>
       <div class="quadrant-tasks" id="tasks-delegate"></div>
     </div>
-    <div class="quadrant q-eliminate" ondragover="allowDrop(event)" ondrop="drop(event, 'eliminate')">
+    <div class="quadrant q-eliminate">
       <div class="quadrant-header" id="sub-eliminate">NE ACİL NE ÖNEMLİ</div>
       <div class="quadrant-title" id="label-eliminate">Yapma / Sil</div>
       <div class="quadrant-tasks" id="tasks-eliminate"></div>
@@ -60,37 +61,33 @@
     <div class="archive-toggle" id="archive-toggle" onclick="toggleArchive()">Arşivi Göster</div>
   </div>
 
-  <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
-    <div class="modal">
-      <div style="display:flex; justify-content:space-between; align-items:center">
-        <h3 id="modal-title">Görev Detayı</h3>
-        <button id="btn-download" class="btn-mini" onclick="downloadHistory()" style="display:none">📥 Log</button>
-      </div>
-      <input type="text" id="task-name-input" />
-      <div class="modal-row">
-        <select id="task-category-input"></select>
-        <select id="task-status-input" onchange="toggleDelegateField()"></select>
-      </div>
-      <div id="delegate-to-wrapper" style="display:none">
-        <input type="text" id="task-delegate-input" />
-      </div>
-      <div class="modal-row">
-        <label id="lbl-deadline">Bitiş Tarihi:</label>
-        <input type="date" id="task-deadline-input" />
-      </div>
-      <textarea id="task-notes-input"></textarea>
-      <div id="version-info" style="font-size:0.7rem; color:#aaa; text-align:right"></div>
-      <div class="modal-buttons">
-        <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">İptal</button>
-        <button class="btn-save" id="btn-save" onclick="saveModal()">Kaydet</button>
-      </div>
-    </div>
-  </div>
-
   <footer class="footer">
     <p>In onore di <em>Onur Safi</em>, con profondo rispetto.</p>
     <p class="signature">Sviluppato da <strong>BgslB</strong></p>
   </footer>
+
+  <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <h3 id="modal-title">Görev Detayı</h3>
+      <input type="text" id="task-name-input" placeholder="Görev adı..." />
+      <div class="modal-row">
+        <select id="task-category-input" onchange="updateCategoryUI()"></select>
+        <select id="task-status-input" onchange="updateStatusUI()"></select>
+      </div>
+      <div id="delegate-to-wrapper" style="display:none">
+        <input type="text" id="task-delegate-input" placeholder="Kime delege edildi?" />
+      </div>
+      <div class="modal-row">
+        <label style="font-size:0.7rem; color:#888">Bitiş Tarihi:</label>
+        <input type="date" id="task-deadline-input" />
+      </div>
+      <textarea id="task-notes-input" placeholder="Detaylar..."></textarea>
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeModal()">İptal</button>
+        <button class="btn-save" onclick="saveModal()">Kaydet</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js?v=v3_final"></script>
 </body>
