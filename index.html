@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Eisenhower PRO</title>
-  <link rel="stylesheet" href="style.css?v=final_v2" />
+  <title>Task Eisenhower V3</title>
+  <link rel="stylesheet" href="style.css?v=v3" />
 </head>
 <body>
-
   <header class="header">
     <h1 id="app-name">GÖREV MATRİSİ</h1>
     <div class="lang-switcher">
@@ -63,27 +62,33 @@
 
   <div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-      <h3 id="modal-title">Görev Detayı</h3>
-      <input type="text" id="task-name-input" placeholder="Görev adı..." />
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <h3 id="modal-title">Görev Detayı</h3>
+        <button id="btn-download" class="btn-mini" onclick="downloadHistory()" style="display:none">📥 Log</button>
+      </div>
+      <input type="text" id="task-name-input" placeholder="" />
       <div class="modal-row">
-        <select id="task-category-input" onchange="updateCategoryUI()"></select>
-        <select id="task-status-input" onchange="updateStatusUI()"></select>
+        <select id="task-category-input"></select>
+        <select id="task-status-input" onchange="toggleDelegateField()"></select>
       </div>
       <div id="delegate-to-wrapper" style="display:none">
-        <input type="text" id="task-delegate-input" placeholder="Kime delege edildi?" />
+        <input type="text" id="task-delegate-input" placeholder="" />
       </div>
       <div class="modal-row">
-        <label style="font-size:0.7rem; color:#888">Bitiş Tarihi:</label>
+        <label id="lbl-deadline">Bitiş Tarihi:</label>
         <input type="date" id="task-deadline-input" />
       </div>
-      <textarea id="task-notes-input" placeholder="Detaylar..."></textarea>
+      <textarea id="task-notes-input" placeholder=""></textarea>
+      
+      <div id="version-info" style="font-size:0.7rem; color:#aaa; text-align:right"></div>
+
       <div class="modal-buttons">
-        <button class="btn-cancel" onclick="closeModal()">İptal</button>
-        <button class="btn-save" onclick="saveModal()">Kaydet</button>
+        <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">İptal</button>
+        <button class="btn-save" id="btn-save" onclick="saveModal()">Kaydet</button>
       </div>
     </div>
   </div>
 
-  <script src="app.js?v=final_v2"></script>
+  <script src="app.js?v=v3"></script>
 </body>
 </html>
