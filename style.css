@@ -3,9 +3,11 @@ body { font-family: 'Inter', sans-serif; background-color: #fcfaf8; color: #444;
 
 .header { padding: 15px 30px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
 .header h1 { font-size: 1rem; font-weight: 800; letter-spacing: 1.5px; }
+.header-right { display: flex; align-items: center; gap: 15px; }
 
 .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-.quadrant { min-height: 200px; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+.quadrant { min-height: 250px; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: background 0.2s; }
+.quadrant.drag-over { background: rgba(0,0,0,0.05) !important; border: 2px dashed #666; }
 
 .q-do { background: #fff0f0; border-left: 5px solid #ffb3b3; }
 .q-schedule { background: #f0f4ff; border-left: 5px solid #adc9ff; }
@@ -14,11 +16,13 @@ body { font-family: 'Inter', sans-serif; background-color: #fcfaf8; color: #444;
 
 .quadrant-header { font-size: 0.6rem; font-weight: 700; opacity: 0.5; margin-bottom: 2px; }
 .quadrant-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+.quadrant-tasks { flex: 1; min-height: 50px; }
 
-.task-chip { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 8px; cursor: pointer; border: 1px solid rgba(0,0,0,0.03); transition: transform 0.1s; }
-.task-chip:hover { transform: translateY(-2px); }
-.task-chip.overdue { border: 2px solid #ff4d4d; box-shadow: 0 0 8px rgba(255, 77, 77, 0.2); }
+.task-chip { background: rgba(255,255,255,0.9); padding: 10px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 8px; cursor: grab; border: 1px solid rgba(0,0,0,0.05); position: relative; }
+.task-chip:active { cursor: grabbing; }
+.task-chip.overdue { border: 2px solid #ff4d4d; }
 
+.ver-tag { position: absolute; top: 5px; right: 8px; font-size: 0.6rem; color: #bbb; font-weight: bold; }
 .chip-meta { font-size: 0.65rem; color: #888; margin-top: 4px; display: flex; justify-content: space-between; }
 
 .task-pool { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -33,6 +37,7 @@ body { font-family: 'Inter', sans-serif; background-color: #fcfaf8; color: #444;
 .delegate-badge { background: #fff3cd; color: #856404; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
 
 .btn-add { background: #222; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.btn-export { background: #eee; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 600; }
 .lang-switcher button { background: #f0f0f0; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.65rem; margin-left: 4px; }
 .lang-switcher button.active { background: #222; color: #fff; }
 

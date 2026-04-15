@@ -4,7 +4,7 @@ const LANGS = {
     urgent: 'ACİL & ÖNEMLİ', notUrgent: 'ÖNEMLİ, ACİL DEĞİL', urgentNotImportant: 'ACİL, ÖNEMLİ DEĞİL', neither: 'NE ACİL NE ÖNEMLİ',
     taskPool: 'GÖREV HAVUZU', addTask: '+ Görev Ekle', taskName: 'Görev', dateIn: 'Giriş', dateOut: 'Bitiş',
     status: 'Durum/Kime', notes: 'Notlar', save: 'Kaydet', cancel: 'İptal',
-    statuses: { beklemede: '🟡 Beklemede', devam: '🔵 Devam Ediyor', delege: '🟠 Delege Edildi', geri: '🔴 Geri Döndü', tamamlandi: '✅ Tamamlandı' },
+    statuses: { beklemede: '🟡 Beklemede', devam: '🔵 In Corso (Devam Ediyor)', delege: '🟠 Delege Edildi', geri: '🔴 Ritorno (Geri Döndü)', tamamlandi: '✅ Tamamlandı' },
     categories: { do: 'DO - Hemen Yap', schedule: 'SCHEDULE - Planla', delegate: 'DELEGATE - Delege Et', eliminate: 'ELIMINATE - Yapma' }
   },
   en: {
@@ -35,12 +35,34 @@ const getToday = () => new Date().toISOString().split('T')[0];
 const formatDate = (d) => { if(!d) return "-"; const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
 const getLang = () => LANGS[currentLang];
 
-// --- MANTIKSAL SENKRONİZASYON ---
+// --- DRAG & DROP ---
+window.allowDrop = (ev) => ev.preventDefault();
+window.drag = (ev, id) => ev.dataTransfer.setData("text", id);
+window.drop = (ev, category) => {
+    ev.preventDefault();
+    const id = ev.dataTransfer.getData("text");
+    const t = tasks.find(x => x.id === id);
+    if(t) {
+        t.category = category;
+        // Senkronizasyon
+        if(category === 'delegate') t.status = 'delege';
+        else if(category === 'schedule') t.status = 'beklemede';
+        else if(category === 'do' && t.status === 'beklemede') t.status = 'devam';
+        
+        // Versiyon artır (Sürükleme de bir işlemdir)
+        t.version = (t.version >= 3) ? 1 : (t.version || 1) + 1;
 
+        saveTasks();
+        renderAll();
+    }
+};
+
+// --- MANTIKSAL SENKRONİZASYON ---
 window.updateCategoryUI = () => {
     const cat = document.getElementById('task-category-input').value;
     const statEl = document.getElementById('task-status-input');
     if (cat === 'delegate') statEl.value = 'delege';
+    else if (cat === 'schedule') statEl.value = 'beklemede';
     else if (cat === 'do' && statEl.value === 'beklemede') statEl.value = 'devam';
     toggleDelegateField();
 };
@@ -48,7 +70,7 @@ window.updateCategoryUI = () => {
 window.updateStatusUI = () => {
     const stat = document.getElementById('task-status-input').value;
     const catEl = document.getElementById('task-category-input');
-    if (stat === 'devam' || stat === 'geri') catEl.value = 'do';
+    if (stat === 'devam') catEl.value = 'do';
     if (stat === 'delege') catEl.value = 'delegate';
     toggleDelegateField();
 };
@@ -60,7 +82,6 @@ window.toggleDelegateField = () => {
 };
 
 // --- CORE ---
-
 window.setLang = (l) => { currentLang = l; localStorage.setItem('lang', l); renderAll(); };
 window.toggleArchive = () => { showArchive = !showArchive; renderAll(); };
 
@@ -71,7 +92,7 @@ window.openAddModal = () => {
   document.getElementById('task-delegate-input').value = '';
   document.getElementById('task-deadline-input').value = '';
   document.getElementById('task-notes-input').value = '';
-  document.getElementById('delegate-to-wrapper').style.display = 'none';
+  toggleDelegateField();
   document.getElementById('modal-overlay').style.display = 'flex';
 };
 
@@ -101,22 +122,48 @@ function populateModalDropdowns() {
 window.saveModal = () => {
   const name = document.getElementById('task-name-input').value.trim();
   if(!name) return;
-  const data = {
-    name,
-    category: document.getElementById('task-category-input').value,
-    status: document.getElementById('task-status-input').value,
-    delegateTo: document.getElementById('task-delegate-input').value,
-    deadline: document.getElementById('task-deadline-input').value,
-    notes: document.getElementById('task-notes-input').value
-  };
+
+  const statVal = document.getElementById('task-status-input').value;
+  let finalStatus = statVal;
+  let finalDelTo = document.getElementById('task-delegate-input').value;
+  let finalCat = document.getElementById('task-category-input').value;
+
+  // RITORNO (Geri Döndü) Kontrolü
+  if(statVal === 'geri') {
+    finalStatus = 'devam';
+    finalDelTo = '';
+    finalCat = 'do';
+  }
 
   if(editingTaskId) {
     const t = tasks.find(x => x.id === editingTaskId);
-    if(t) Object.assign(t, data);
+    if(t) {
+      t.version = (t.version >= 3) ? 1 : (t.version || 1) + 1;
+      Object.assign(t, { 
+        name, category: finalCat, status: finalStatus, 
+        delegateTo: finalDelTo,
+        deadline: document.getElementById('task-deadline-input').value,
+        notes: document.getElementById('task-notes-input').value
+      });
+    }
   } else {
-    tasks.push({ id: Date.now().toString(), ...data, dateCreated: getToday() });
+    tasks.push({ 
+      id: Date.now().toString(), name, category: finalCat, 
+      status: finalStatus, delegateTo: finalDelTo,
+      deadline: document.getElementById('task-deadline-input').value,
+      notes: document.getElementById('task-notes-input').value,
+      dateCreated: getToday(), version: 1 
+    });
   }
   saveTasks(); closeModal(); renderAll();
+};
+
+window.downloadTasks = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
+    const dl = document.createElement('a');
+    dl.setAttribute("href", dataStr);
+    dl.setAttribute("download", "tasks_backup.json");
+    dl.click();
 };
 
 function renderAll() {
@@ -124,60 +171,48 @@ function renderAll() {
   const today = getToday();
   const active = tasks.filter(t => t.status !== 'tamamlandi');
   
+  // Header & Labels
   document.getElementById('app-name').textContent = L.appName;
   document.getElementById('pool-title').textContent = L.taskPool;
   document.getElementById('btn-add').textContent = L.addTask;
-  document.getElementById('th-name').textContent = L.taskName;
-  document.getElementById('th-created').textContent = L.dateIn;
-  document.getElementById('th-deadline').textContent = L.dateOut;
-  document.getElementById('th-status').textContent = L.status;
-  document.getElementById('th-notes').textContent = L.notes;
-  document.getElementById('archive-toggle').textContent = showArchive ? (currentLang === 'tr' ? 'Arşivi Gizle' : (currentLang === 'it' ? 'Nascondi Archivio' : 'Hide Archive')) : (currentLang === 'tr' ? 'Arşivi Göster' : (currentLang === 'it' ? 'Mostra Archivio' : 'Show Archive'));
-
   document.getElementById('label-do').textContent = L.do;
   document.getElementById('label-schedule').textContent = L.schedule;
   document.getElementById('label-delegate').textContent = L.delegate;
   document.getElementById('label-eliminate').textContent = L.eliminate;
-  document.getElementById('sub-do').textContent = L.urgent;
-  document.getElementById('sub-schedule').textContent = L.notUrgent;
-  document.getElementById('sub-delegate').textContent = L.urgentNotImportant;
-  document.getElementById('sub-eliminate').textContent = L.neither;
+  
+  ['tr','en','it'].forEach(l => document.getElementById(`lang-${l}`).classList.toggle('active', l === currentLang));
 
-  ['tr','en','it'].forEach(l => {
-    const btn = document.getElementById(`lang-${l}`);
-    if(btn) btn.classList.toggle('active', l === currentLang);
-  });
-
+  // Matrix
   ['do','schedule','delegate','eliminate'].forEach(q => {
-    document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => {
-      const isOverdue = t.deadline && t.deadline < today;
-      return `
-      <div class="task-chip ${isOverdue ? 'overdue' : ''}" onclick="openEditModal('${t.id}')">
-        <div style="font-weight:600">${t.name}</div>
+    document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => `
+      <div class="task-chip ${t.deadline && t.deadline < today ? 'overdue' : ''}" 
+           draggable="true" ondragstart="drag(event, '${t.id}')"
+           onclick="openEditModal('${t.id}')">
+        <span class="ver-tag">v${t.version || 1}</span>
+        <div style="font-weight:600; padding-right:20px;">${t.name}</div>
         <div class="chip-meta">
           <span>${formatDate(t.deadline)}</span>
           <span>${t.delegateTo ? '👤 '+t.delegateTo : ''}</span>
         </div>
       </div>
-    `}).join('');
+    `).join('');
   });
 
+  // Table
   const filtered = showArchive ? tasks.filter(t => t.status === 'tamamlandi') : active;
-  document.getElementById('task-tbody').innerHTML = filtered.map((t, i) => {
-    const isOverdue = t.deadline && t.deadline < today && t.status !== 'tamamlandi';
-    return `
+  document.getElementById('task-tbody').innerHTML = filtered.map(t => `
     <tr>
-      <td style="color:#ccc">#${i+1}</td>
-      <td onclick="openEditModal('${t.id}')" style="cursor:pointer;font-weight:600">${t.name}</td>
-      <td style="font-size:0.7rem;color:#999">${formatDate(t.dateCreated)}</td>
-      <td style="color:${isOverdue ? '#ff4d4d' : 'inherit'}; font-weight:${isOverdue ? '700' : 'normal'}">${formatDate(t.deadline)}</td>
+      <td style="color:#bbb; font-weight:bold">v${t.version || 1}</td>
+      <td onclick="openEditModal('${t.id}')" style="cursor:pointer; font-weight:600">${t.name}</td>
+      <td style="font-size:0.7rem; color:#999">${formatDate(t.dateCreated)}</td>
+      <td style="color:${t.deadline < today && t.status !== 'tamamlandi' ? '#ff4d4d' : 'inherit'}">${formatDate(t.deadline)}</td>
       <td>
         <span style="font-size:0.8rem">${L.statuses[t.status]}</span>
-        ${t.status === 'delege' && t.delegateTo ? `<br><span class="delegate-badge">${t.delegateTo}</span>` : ''}
+        ${t.delegateTo ? `<br><span class="delegate-badge">${t.delegateTo}</span>` : ''}
       </td>
-      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes ? (t.notes.substring(0,25) + '...') : '...'}</td>
+      <td onclick="openEditModal('${t.id}')">${t.notes ? (t.notes.substring(0,25)+'...') : '...'}</td>
     </tr>
-  `}).join('');
+  `).join('');
 }
 
-window.onload = () => { renderAll(); };
+window.onload = renderAll;

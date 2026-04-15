@@ -4,36 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Task Eisenhower PRO</title>
-  <link rel="stylesheet" href="style.css?v=v3_final" />
+  <link rel="stylesheet" href="style.css?v=v4_final" />
 </head>
 <body>
 
   <header class="header">
     <h1 id="app-name">GÖREV MATRİSİ</h1>
-    <div class="lang-switcher">
-      <button id="lang-tr" onclick="setLang('tr')">TR</button>
-      <button id="lang-en" onclick="setLang('en')">EN</button>
-      <button id="lang-it" onclick="setLang('it')">IT</button>
+    <div class="header-right">
+      <button class="btn-export" onclick="downloadTasks()">💾 Yedekle</button>
+      <div class="lang-switcher">
+        <button id="lang-tr" onclick="setLang('tr')">TR</button>
+        <button id="lang-en" onclick="setLang('en')">EN</button>
+        <button id="lang-it" onclick="setLang('it')">IT</button>
+      </div>
     </div>
   </header>
 
   <div class="matrix">
-    <div class="quadrant q-do">
+    <div class="quadrant q-do" ondrop="drop(event, 'do')" ondragover="allowDrop(event)">
       <div class="quadrant-header" id="sub-do">ACİL & ÖNEMLİ</div>
       <div class="quadrant-title" id="label-do">Hemen Yap</div>
       <div class="quadrant-tasks" id="tasks-do"></div>
     </div>
-    <div class="quadrant q-schedule">
+    <div class="quadrant q-schedule" ondrop="drop(event, 'schedule')" ondragover="allowDrop(event)">
       <div class="quadrant-header" id="sub-schedule">ÖNEMLİ, ACİL DEĞİL</div>
       <div class="quadrant-title" id="label-schedule">Planla</div>
       <div class="quadrant-tasks" id="tasks-schedule"></div>
     </div>
-    <div class="quadrant q-delegate">
+    <div class="quadrant q-delegate" ondrop="drop(event, 'delegate')" ondragover="allowDrop(event)">
       <div class="quadrant-header" id="sub-delegate">ACİL, ÖNEMLİ DEĞİL</div>
       <div class="quadrant-title" id="label-delegate">Delege Et</div>
       <div class="quadrant-tasks" id="tasks-delegate"></div>
     </div>
-    <div class="quadrant q-eliminate">
+    <div class="quadrant q-eliminate" ondrop="drop(event, 'eliminate')" ondragover="allowDrop(event)">
       <div class="quadrant-header" id="sub-eliminate">NE ACİL NE ÖNEMLİ</div>
       <div class="quadrant-title" id="label-eliminate">Yapma / Sil</div>
       <div class="quadrant-tasks" id="tasks-eliminate"></div>
@@ -48,7 +51,7 @@
     <table class="task-table">
       <thead>
         <tr>
-          <th style="width: 40px;">No</th>
+          <th style="width: 50px;">Ver.</th>
           <th id="th-name">Görev</th>
           <th id="th-created">Giriş</th>
           <th id="th-deadline">Bitiş</th>
@@ -89,6 +92,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=v3_final"></script>
+  <script src="app.js?v=v4_final"></script>
 </body>
 </html>
