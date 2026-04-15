@@ -17,22 +17,22 @@
   </header>
 
   <div class="matrix">
-    <div class="quadrant q-do">
+    <div class="quadrant q-do" ondragover="allowDrop(event)" ondrop="drop(event, 'do')">
       <div class="quadrant-header" id="sub-do">ACİL & ÖNEMLİ</div>
       <div class="quadrant-title" id="label-do">Hemen Yap</div>
       <div class="quadrant-tasks" id="tasks-do"></div>
     </div>
-    <div class="quadrant q-schedule">
+    <div class="quadrant q-schedule" ondragover="allowDrop(event)" ondrop="drop(event, 'schedule')">
       <div class="quadrant-header" id="sub-schedule">ÖNEMLİ, ACİL DEĞİL</div>
       <div class="quadrant-title" id="label-schedule">Planla</div>
       <div class="quadrant-tasks" id="tasks-schedule"></div>
     </div>
-    <div class="quadrant q-delegate">
+    <div class="quadrant q-delegate" ondragover="allowDrop(event)" ondrop="drop(event, 'delegate')">
       <div class="quadrant-header" id="sub-delegate">ACİL, ÖNEMLİ DEĞİL</div>
       <div class="quadrant-title" id="label-delegate">Delege Et</div>
       <div class="quadrant-tasks" id="tasks-delegate"></div>
     </div>
-    <div class="quadrant q-eliminate">
+    <div class="quadrant q-eliminate" ondragover="allowDrop(event)" ondrop="drop(event, 'eliminate')">
       <div class="quadrant-header" id="sub-eliminate">NE ACİL NE ÖNEMLİ</div>
       <div class="quadrant-title" id="label-eliminate">Yapma / Sil</div>
       <div class="quadrant-tasks" id="tasks-eliminate"></div>
@@ -88,7 +88,7 @@
   </div>
 
   <footer class="footer">
-    <p>In onore di <strong>Onur Safi</strong>, con profondo rispetto.</p>
+    <p>In onore di <em>Onur Safi</em>, con profondo rispetto.</p>
     <p class="signature">Sviluppato da <strong>BgslB</strong></p>
   </footer>
 

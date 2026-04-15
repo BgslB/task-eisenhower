@@ -38,23 +38,39 @@ const getToday = () => new Date().toISOString().split('T')[0];
 const formatDate = (d) => { if(!d) return "-"; const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
 const getLang = () => LANGS[currentLang];
 
+// Drag & Drop
+window.allowDrop = (ev) => ev.preventDefault();
+window.drag = (ev, id) => ev.dataTransfer.setData("taskId", id);
+window.drop = (ev, newCategory) => {
+  ev.preventDefault();
+  const id = ev.dataTransfer.getData("taskId");
+  const t = tasks.find(x => x.id === id);
+  if(t && t.category !== newCategory) {
+    if(!t.history) t.history = [];
+    const snapshot = { ...t }; delete snapshot.history;
+    t.history.push(snapshot);
+    if(t.history.length > 3) t.history.shift();
+    t.category = newCategory;
+    t.updatedAt = new Date().toLocaleString();
+    saveTasks(); renderAll();
+  }
+};
+
 function populateModalDropdowns() {
   const L = getLang();
   document.getElementById('task-category-input').innerHTML = Object.entries(L.categories).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
   document.getElementById('task-status-input').innerHTML = Object.entries(L.statuses).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
 }
 
-window.setLang = (l) => { currentLang = l; localStorage.setItem('lang', l); renderAll(); };
-
 window.toggleDelegateField = () => {
   const status = document.getElementById('task-status-input').value;
   document.getElementById('delegate-to-wrapper').style.display = (status === 'delege') ? 'block' : 'none';
 };
 
+window.setLang = (l) => { currentLang = l; localStorage.setItem('lang', l); renderAll(); };
+
 window.openAddModal = () => {
-  editingTaskId = null;
-  const L = getLang();
-  populateModalDropdowns();
+  editingTaskId = null; const L = getLang(); populateModalDropdowns();
   document.getElementById('modal-title').textContent = L.addTask;
   document.getElementById('task-name-input').value = '';
   document.getElementById('task-name-input').placeholder = L.namePlaceholder;
@@ -70,10 +86,7 @@ window.openAddModal = () => {
 };
 
 window.openEditModal = (id) => {
-  const t = tasks.find(x => x.id === id);
-  if(!t) return;
-  editingTaskId = id;
-  const L = getLang();
+  const t = tasks.find(x => x.id === id); if(!t) return; editingTaskId = id; const L = getLang();
   populateModalDropdowns();
   document.getElementById('modal-title').textContent = t.name;
   document.getElementById('task-name-input').value = t.name;
@@ -88,31 +101,23 @@ window.openEditModal = (id) => {
   document.getElementById('modal-overlay').style.display = 'flex';
 };
 
-window.closeModal = () => { document.getElementById('modal-overlay').style.display = 'none'; };
+window.closeModal = () => document.getElementById('modal-overlay').style.display = 'none';
 
 window.saveModal = () => {
-  const name = document.getElementById('task-name-input').value.trim();
-  if(!name) return;
-
+  const name = document.getElementById('task-name-input').value.trim(); if(!name) return;
   const newData = {
-    name,
-    category: document.getElementById('task-category-input').value,
+    name, category: document.getElementById('task-category-input').value,
     status: document.getElementById('task-status-input').value,
     delegateTo: document.getElementById('task-delegate-input').value,
     deadline: document.getElementById('task-deadline-input').value,
     notes: document.getElementById('task-notes-input').value,
     updatedAt: new Date().toLocaleString()
   };
-
   if(editingTaskId) {
     const t = tasks.find(x => x.id === editingTaskId);
-    // Versiyonlama: Eski hali history'ye at (max 3 sürüm)
     if(!t.history) t.history = [];
-    const snapshot = { ...t };
-    delete snapshot.history; // history içinde history saklama
-    t.history.push(snapshot);
-    if(t.history.length > 3) t.history.shift(); // Sadece son 3'ü tut
-    
+    const snapshot = { ...t }; delete snapshot.history;
+    t.history.push(snapshot); if(t.history.length > 3) t.history.shift();
     Object.assign(t, newData);
   } else {
     tasks.push({ id: Date.now().toString(), ...newData, dateCreated: getToday(), history: [] });
@@ -121,28 +126,17 @@ window.saveModal = () => {
 };
 
 window.downloadHistory = () => {
-  const t = tasks.find(x => x.id === editingTaskId);
-  if(!t) return;
+  const t = tasks.find(x => x.id === editingTaskId); if(!t) return;
   let text = `LOG: ${t.name}\n------------------\nCURRENT: Status: ${t.status}, Notes: ${t.notes}, Updated: ${t.updatedAt}\n\n`;
-  if(t.history) {
-    t.history.reverse().forEach((h, i) => {
-      text += `v${t.history.length - i}: Status: ${h.status}, Notes: ${h.notes}, Updated: ${h.updatedAt}\n`;
-    });
-  }
-  const blob = new Blob([text], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `task_${t.id}_history.txt`;
-  a.click();
+  if(t.history) t.history.slice().reverse().forEach((h, i) => { text += `v${t.history.length - i}: Status: ${h.status}, Notes: ${h.notes}, Updated: ${h.updatedAt}\n`; });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  a.download = `task_${t.id}_history.txt`; a.click();
 };
 
 window.toggleArchive = () => { showArchive = !showArchive; renderAll(); };
 
 function renderAll() {
-  const L = getLang();
-  const active = tasks.filter(t => t.status !== 'tamamlandi');
-  
-  // UI Dil Güncellemeleri
+  const L = getLang(); const active = tasks.filter(t => t.status !== 'tamamlandi');
   document.getElementById('app-name').textContent = L.appName;
   document.getElementById('pool-title').textContent = L.taskPool;
   document.getElementById('btn-add').textContent = L.addTask;
@@ -154,9 +148,6 @@ function renderAll() {
   document.getElementById('lbl-deadline').textContent = L.deadline;
   document.getElementById('btn-save').textContent = L.save;
   document.getElementById('btn-cancel').textContent = L.cancel;
-  document.getElementById('archive-toggle').textContent = showArchive ? (currentLang==='tr'?'Arşivi Gizle':(currentLang==='it'?'Nascondi Archivio':'Hide Archive')) : (currentLang==='tr'?'Arşivi Göster':(currentLang==='it'?'Mostra Archivio':'Show Archive'));
-
-  // Matris Başlıkları
   document.getElementById('label-do').textContent = L.do;
   document.getElementById('label-schedule').textContent = L.schedule;
   document.getElementById('label-delegate').textContent = L.delegate;
@@ -170,14 +161,10 @@ function renderAll() {
 
   ['do','schedule','delegate','eliminate'].forEach(q => {
     document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => `
-      <div class="task-chip" onclick="openEditModal('${t.id}')">
+      <div class="task-chip" draggable="true" ondragstart="drag(event, '${t.id}')" onclick="openEditModal('${t.id}')">
         <div style="font-weight:600">${t.name}</div>
-        <div class="chip-meta">
-          <span>${formatDate(t.deadline)}</span>
-          ${t.history && t.history.length > 0 ? `<span style="font-size:0.6rem; color:blue">v${t.history.length+1}</span>` : ''}
-        </div>
-      </div>
-    `).join('');
+        <div class="chip-meta"><span>${formatDate(t.deadline)}</span>${t.history?.length > 0 ? `<span style="font-size:0.6rem; color:blue">v${t.history.length+1}</span>` : ''}</div>
+      </div>`).join('');
   });
 
   const filtered = showArchive ? tasks.filter(t => t.status === 'tamamlandi') : active;
@@ -185,15 +172,10 @@ function renderAll() {
     <tr>
       <td>#${i+1}</td>
       <td onclick="openEditModal('${t.id}')" style="cursor:pointer;font-weight:600">${t.name}</td>
-      <td style="font-size:0.7rem;color:#999">${formatDate(t.dateCreated)}</td>
+      <td>${formatDate(t.dateCreated)}</td>
       <td style="color:${t.deadline && t.deadline < getToday() ? 'red' : 'inherit'}">${formatDate(t.deadline)}</td>
-      <td>
-        <span>${L.statuses[t.status]}</span>
-        ${t.delegateTo ? `<div class="delegate-badge">${t.delegateTo}</div>` : ''}
-      </td>
-      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes || '...'}</td>
-    </tr>
-  `).join('');
+      <td><span>${L.statuses[t.status]}</span>${t.delegateTo ? `<div class="delegate-badge">${t.delegateTo}</div>` : ''}</td>
+      <td style="color:#888;font-size:0.75rem">${t.notes || '...'}</td>
+    </tr>`).join('');
 }
-
 window.onload = () => renderAll();
