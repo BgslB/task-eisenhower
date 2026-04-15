@@ -111,7 +111,6 @@ function renderAll() {
   const L = getLang();
   const active = tasks.filter(t => t.status !== 'tamamlandi');
   
-  // STATIK BASLIKLARI GUNCELLEME (SENIN ISTEDIGIN KISIM)
   document.getElementById('app-name').textContent = L.appName;
   document.getElementById('pool-title').textContent = L.taskPool;
   document.getElementById('btn-add').textContent = L.addTask;
@@ -124,7 +123,6 @@ function renderAll() {
   document.getElementById('btn-save').textContent = L.save;
   document.getElementById('btn-cancel').textContent = L.cancel;
 
-  // Matris Alt Başlıklar
   document.getElementById('label-do').textContent = L.do;
   document.getElementById('label-schedule').textContent = L.schedule;
   document.getElementById('label-delegate').textContent = L.delegate;
@@ -134,7 +132,10 @@ function renderAll() {
   document.getElementById('sub-delegate').textContent = L.urgentNotImportant;
   document.getElementById('sub-eliminate').textContent = L.neither;
 
-  ['tr','en','it'].forEach(l => document.getElementById(`lang-${l}`).classList.toggle('active', l === currentLang));
+  ['tr','en','it'].forEach(l => {
+    const btn = document.getElementById(`lang-${l}`);
+    if(btn) btn.classList.toggle('active', l === currentLang);
+  });
 
   ['do','schedule','delegate','eliminate'].forEach(q => {
     document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => `
@@ -153,7 +154,7 @@ function renderAll() {
       <td>${formatDate(t.date)}</td>
       <td>
         <select class="table-select" onchange="updateCategory('${t.id}', this.value)">
-          ${Object.entries(L.categories).map(([val, label]) => `<option value="${val}" ${t.category===val?'selected':''}>${val.split(' ')[0]}</option>`).join('')}
+          ${Object.entries(L.categories).map(([val, label]) => `<option value="${val}" ${t.category===val?'selected':''}>${val.toUpperCase()}</option>`).join('')}
         </select>
       </td>
       <td>
