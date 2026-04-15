@@ -66,20 +66,20 @@
       <h3 id="modal-title">Görev Detayı</h3>
       <input type="text" id="task-name-input" placeholder="Görev adı..." />
       <div class="modal-row">
-        <select id="task-category-input"></select>
-        <select id="task-status-input" onchange="toggleDelegateField()"></select>
+        <select id="task-category-input" onchange="updateCategoryUI()"></select>
+        <select id="task-status-input" onchange="updateStatusUI()"></select>
       </div>
       <div id="delegate-to-wrapper" style="display:none">
-        <input type="text" id="task-delegate-input" placeholder="Kime delege edildi? (Örn: Andrea, Lojistik)" />
+        <input type="text" id="task-delegate-input" placeholder="Kime delege edildi?" />
       </div>
       <div class="modal-row">
-        <label style="font-size:0.7rem; color:#888" id="lbl-deadline">Bitiş Tarihi:</label>
+        <label style="font-size:0.7rem; color:#888">Bitiş Tarihi:</label>
         <input type="date" id="task-deadline-input" />
       </div>
       <textarea id="task-notes-input" placeholder="Detaylar..."></textarea>
       <div class="modal-buttons">
-        <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">İptal</button>
-        <button class="btn-save" id="btn-save" onclick="saveModal()">Kaydet</button>
+        <button class="btn-cancel" onclick="closeModal()">İptal</button>
+        <button class="btn-save" onclick="saveModal()">Kaydet</button>
       </div>
     </div>
   </div>

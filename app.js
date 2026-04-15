@@ -35,18 +35,36 @@ const getToday = () => new Date().toISOString().split('T')[0];
 const formatDate = (d) => { if(!d) return "-"; const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
 const getLang = () => LANGS[currentLang];
 
-function populateModalDropdowns() {
-  const L = getLang();
-  document.getElementById('task-category-input').innerHTML = Object.entries(L.categories).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
-  document.getElementById('task-status-input').innerHTML = Object.entries(L.statuses).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
-}
+// --- MANTIKSAL GÜNCELLEMELER ---
+
+// Modal'da kategori değişince statüyü zorla
+window.updateCategoryUI = () => {
+    const cat = document.getElementById('task-category-input').value;
+    const statEl = document.getElementById('task-status-input');
+    if (cat === 'delegate') statEl.value = 'delege';
+    else if (cat === 'do' && statEl.value === 'beklemede') statEl.value = 'devam';
+    toggleDelegateField();
+};
+
+// Modal'da statü değişince kategoriyi zorla
+window.updateStatusUI = () => {
+    const stat = document.getElementById('task-status-input').value;
+    const catEl = document.getElementById('task-category-input');
+    if (stat === 'devam' || stat === 'geri') catEl.value = 'do';
+    if (stat === 'delege') catEl.value = 'delegate';
+    toggleDelegateField();
+};
 
 window.toggleDelegateField = () => {
   const status = document.getElementById('task-status-input').value;
   document.getElementById('delegate-to-wrapper').style.display = (status === 'delege') ? 'block' : 'none';
 };
 
+// --- CORE FONKSİYONLAR ---
+
 window.setLang = (l) => { currentLang = l; localStorage.setItem('lang', l); renderAll(); };
+
+window.toggleArchive = () => { showArchive = !showArchive; renderAll(); };
 
 window.openAddModal = () => {
   editingTaskId = null;
@@ -76,6 +94,12 @@ window.openEditModal = (id) => {
 
 window.closeModal = () => { document.getElementById('modal-overlay').style.display = 'none'; };
 
+function populateModalDropdowns() {
+  const L = getLang();
+  document.getElementById('task-category-input').innerHTML = Object.entries(L.categories).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+  document.getElementById('task-status-input').innerHTML = Object.entries(L.statuses).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+}
+
 window.saveModal = () => {
   const name = document.getElementById('task-name-input').value.trim();
   if(!name) return;
@@ -99,41 +123,65 @@ window.saveModal = () => {
 
 function renderAll() {
   const L = getLang();
+  const today = getToday();
   const active = tasks.filter(t => t.status !== 'tamamlandi');
   
   document.getElementById('app-name').textContent = L.appName;
+  document.getElementById('pool-title').textContent = L.taskPool;
+  document.getElementById('btn-add').textContent = L.addTask;
   document.getElementById('th-name').textContent = L.taskName;
   document.getElementById('th-created').textContent = L.dateIn;
   document.getElementById('th-deadline').textContent = L.dateOut;
   document.getElementById('th-status').textContent = L.status;
   document.getElementById('th-notes').textContent = L.notes;
+  document.getElementById('archive-toggle').textContent = showArchive ? (L.appName === 'GÖREV MATRİSİ' ? 'Arşivi Gizle' : 'Hide Archive') : (L.appName === 'GÖREV MATRİSİ' ? 'Arşivi Göster' : 'Show Archive');
 
+  document.getElementById('label-do').textContent = L.do;
+  document.getElementById('label-schedule').textContent = L.schedule;
+  document.getElementById('label-delegate').textContent = L.delegate;
+  document.getElementById('label-eliminate').textContent = L.eliminate;
+  document.getElementById('sub-do').textContent = L.urgent;
+  document.getElementById('sub-schedule').textContent = L.notUrgent;
+  document.getElementById('sub-delegate').textContent = L.urgentNotImportant;
+  document.getElementById('sub-eliminate').textContent = L.neither;
+
+  ['tr','en','it'].forEach(l => {
+    const btn = document.getElementById(`lang-${l}`);
+    if(btn) btn.classList.toggle('active', l === currentLang);
+  });
+
+  // Matrix Render
   ['do','schedule','delegate','eliminate'].forEach(q => {
-    document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => `
-      <div class="task-chip" onclick="openEditModal('${t.id}')">
+    document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => {
+      const isOverdue = t.deadline && t.deadline < today;
+      return `
+      <div class="task-chip ${isOverdue ? 'overdue' : ''}" onclick="openEditModal('${t.id}')">
         <div style="font-weight:600">${t.name}</div>
         <div class="chip-meta">
           <span>${formatDate(t.deadline)}</span>
           <span>${t.delegateTo ? '👤 '+t.delegateTo : ''}</span>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   });
 
+  // Table Render
   const filtered = showArchive ? tasks.filter(t => t.status === 'tamamlandi') : active;
-  document.getElementById('task-tbody').innerHTML = filtered.map((t, i) => `
+  document.getElementById('task-tbody').innerHTML = filtered.map((t, i) => {
+    const isOverdue = t.deadline && t.deadline < today && t.status !== 'tamamlandi';
+    return `
     <tr>
-      <td>#${i+1}</td>
+      <td style="color:#ccc">#${i+1}</td>
       <td onclick="openEditModal('${t.id}')" style="cursor:pointer;font-weight:600">${t.name}</td>
       <td style="font-size:0.7rem;color:#999">${formatDate(t.dateCreated)}</td>
-      <td style="color:${t.deadline < getToday() ? 'red' : 'inherit'}">${formatDate(t.deadline)}</td>
+      <td style="color:${isOverdue ? 'red' : 'inherit'}; font-weight:${isOverdue ? '700' : 'normal'}">${formatDate(t.deadline)}</td>
       <td>
         <span style="font-size:0.8rem">${L.statuses[t.status]}</span>
         ${t.status === 'delege' && t.delegateTo ? `<span class="delegate-badge">${t.delegateTo}</span>` : ''}
       </td>
-      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes || '...'}</td>
+      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes ? (t.notes.substring(0,20) + '...') : '...'}</td>
     </tr>
-  `).join('');
+  `}).join('');
 }
 
 window.onload = () => { renderAll(); };
