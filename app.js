@@ -4,8 +4,9 @@ const LANGS = {
     urgent: 'ACİL & ÖNEMLİ', notUrgent: 'ÖNEMLİ, ACİL DEĞİL', urgentNotImportant: 'ACİL, ÖNEMLİ DEĞİL', neither: 'NE ACİL NE ÖNEMLİ',
     taskPool: 'GÖREV HAVUZU', addTask: '+ Görev Ekle', taskName: 'Görev Adı', date: 'Tarih', category: 'Kategori',
     status: 'Durum', notes: 'Notlar', save: 'Kaydet', cancel: 'İptal', newTask: 'Yeni Görev',
-    taskNamePlaceholder: 'Görev adını girin...', notesPlaceholder: 'Notlar...',
+    taskNamePlaceholder: 'Görev adını girin...', notesPlaceholder: 'Notlar...', addNotePlaceholder: 'Not ekle...',
     statuses: { beklemede: '🟡 Beklemede', devam: '🔵 Devam Ediyor', delege: '🟠 Delege Edildi', geri: '🔴 Geri Döndü', tamamlandi: '✅ Tamamlandı' },
+    categories: { do: 'DO - Hemen Yap', schedule: 'SCHEDULE - Planla', delegate: 'DELEGATE - Delege Et', eliminate: 'ELIMINATE - Yapma' },
     showArchive: 'Arşivi Göster', hideArchive: 'Arşivi Gizle'
   },
   en: {
@@ -13,8 +14,9 @@ const LANGS = {
     urgent: 'URGENT & IMPORTANT', notUrgent: 'IMPORTANT, NOT URGENT', urgentNotImportant: 'URGENT, NOT IMPORTANT', neither: 'NEITHER URGENT NOR IMPORTANT',
     taskPool: 'TASK POOL', addTask: '+ Add Task', taskName: 'Task Name', date: 'Date', category: 'Category',
     status: 'Status', notes: 'Notes', save: 'Save', cancel: 'Cancel', newTask: 'New Task',
-    taskNamePlaceholder: 'Enter task name...', notesPlaceholder: 'Notes...',
+    taskNamePlaceholder: 'Enter task name...', notesPlaceholder: 'Notes...', addNotePlaceholder: 'Add note...',
     statuses: { beklemede: '🟡 Pending', devam: '🔵 In Progress', delege: '🟠 Delegated', geri: '🔴 Returned', tamamlandi: '✅ Completed' },
+    categories: { do: 'DO - Do Now', schedule: 'SCHEDULE - Plan', delegate: 'DELEGATE - Delegate', eliminate: 'ELIMINATE - Remove' },
     showArchive: 'Show Archive', hideArchive: 'Hide Archive'
   },
   it: {
@@ -22,8 +24,9 @@ const LANGS = {
     urgent: 'URGENTE & IMPORTANTE', notUrgent: 'IMPORTANTE, NON URGENTE', urgentNotImportant: 'URGENTE, NON IMPORTANTE', neither: 'NÉ URGENTE NÉ IMPORTANTE',
     taskPool: 'POOL ATTIVITÀ', addTask: '+ Aggiungi', taskName: 'Nome Attività', date: 'Data', category: 'Categoria',
     status: 'Stato', notes: 'Note', save: 'Salva', cancel: 'Annulla', newTask: 'Nuova Attività',
-    taskNamePlaceholder: 'Inserisci nome...', notesPlaceholder: 'Note...',
+    taskNamePlaceholder: 'Inserisci nome...', notesPlaceholder: 'Note...', addNotePlaceholder: 'Aggiungi nota...',
     statuses: { beklemede: '🟡 In Attesa', devam: '🔵 In Corso', delege: '🟠 Delegato', geri: '🔴 Ritornato', tamamlandi: '✅ Completato' },
+    categories: { do: 'DO - Fai Ora', schedule: 'SCHEDULE - Pianifica', delegate: 'DELEGATE - Delega', eliminate: 'ELIMINATE - Elimina' },
     showArchive: 'Mostra Archivio', hideArchive: 'Nascondi Archivio'
   }
 };
@@ -37,6 +40,12 @@ const saveTasks = () => localStorage.setItem('tasks', JSON.stringify(tasks));
 const getToday = () => new Date().toISOString().split('T')[0];
 const formatDate = (d) => { if(!d) return ""; const [y,m,day] = d.split('-'); return `${day}.${m}.${y}`; };
 const getLang = () => LANGS[currentLang];
+
+function populateModalDropdowns() {
+  const L = getLang();
+  document.getElementById('task-category-input').innerHTML = Object.entries(L.categories).map(([val, label]) => `<option value="${val}">${label}</option>`).join('');
+  document.getElementById('task-status-input').innerHTML = Object.entries(L.statuses).map(([val, label]) => `<option value="${val}">${label}</option>`).join('');
+}
 
 window.setLang = (l) => { currentLang = l; localStorage.setItem('lang', l); renderAll(); };
 
@@ -55,16 +64,21 @@ window.updateCategory = (id, c) => { const t = tasks.find(x => x.id === id); if(
 window.openAddModal = () => {
   editingTaskId = null;
   const L = getLang();
+  populateModalDropdowns();
   document.getElementById('modal-title').textContent = L.newTask;
   document.getElementById('task-name-input').value = '';
+  document.getElementById('task-name-input').placeholder = L.taskNamePlaceholder;
   document.getElementById('task-notes-input').value = '';
+  document.getElementById('task-notes-input').placeholder = L.notesPlaceholder;
   document.getElementById('modal-overlay').style.display = 'flex';
 };
 
 window.openEditModal = (id) => {
   const t = tasks.find(x => x.id === id);
   if(!t) return;
+  const L = getLang();
   editingTaskId = id;
+  populateModalDropdowns();
   document.getElementById('modal-title').textContent = t.name;
   document.getElementById('task-name-input').value = t.name;
   document.getElementById('task-category-input').value = t.category;
@@ -97,25 +111,40 @@ function renderAll() {
   const L = getLang();
   const active = tasks.filter(t => t.status !== 'tamamlandi');
   
-  // UI Texts
+  // STATIK BASLIKLARI GUNCELLEME (SENIN ISTEDIGIN KISIM)
   document.getElementById('app-name').textContent = L.appName;
   document.getElementById('pool-title').textContent = L.taskPool;
   document.getElementById('btn-add').textContent = L.addTask;
+  document.getElementById('th-name').textContent = L.taskName;
+  document.getElementById('th-date').textContent = L.date;
+  document.getElementById('th-category').textContent = L.category;
+  document.getElementById('th-status').textContent = L.status;
+  document.getElementById('th-notes').textContent = L.notes;
   document.getElementById('archive-toggle').textContent = showArchive ? L.hideArchive : L.showArchive;
+  document.getElementById('btn-save').textContent = L.save;
+  document.getElementById('btn-cancel').textContent = L.cancel;
+
+  // Matris Alt Başlıklar
+  document.getElementById('label-do').textContent = L.do;
+  document.getElementById('label-schedule').textContent = L.schedule;
+  document.getElementById('label-delegate').textContent = L.delegate;
+  document.getElementById('label-eliminate').textContent = L.eliminate;
+  document.getElementById('sub-do').textContent = L.urgent;
+  document.getElementById('sub-schedule').textContent = L.notUrgent;
+  document.getElementById('sub-delegate').textContent = L.urgentNotImportant;
+  document.getElementById('sub-eliminate').textContent = L.neither;
+
   ['tr','en','it'].forEach(l => document.getElementById(`lang-${l}`).classList.toggle('active', l === currentLang));
 
-  // Matrix
   ['do','schedule','delegate','eliminate'].forEach(q => {
-    const container = document.getElementById(`tasks-${q}`);
-    container.innerHTML = active.filter(t => t.category === q).map(t => `
+    document.getElementById(`tasks-${q}`).innerHTML = active.filter(t => t.category === q).map(t => `
       <div class="task-chip" onclick="openEditModal('${t.id}')">
-        <span>${t.status === 'tamamlandi' ? '✅' : (t.status === 'devam' ? '🔵' : '🟡')}</span>
+        <span>${t.status === 'tamamlandi' ? '✅' : (t.status === 'devam' ? '🔵' : (t.status === 'geri' ? '🔴' : '🟡'))}</span>
         ${t.name}
       </div>
     `).join('');
   });
 
-  // Table
   const filtered = showArchive ? tasks.filter(t => t.status === 'tamamlandi') : active;
   document.getElementById('task-tbody').innerHTML = filtered.map((t, i) => `
     <tr>
@@ -124,10 +153,7 @@ function renderAll() {
       <td>${formatDate(t.date)}</td>
       <td>
         <select class="table-select" onchange="updateCategory('${t.id}', this.value)">
-          <option value="do" ${t.category==='do'?'selected':''}>DO</option>
-          <option value="schedule" ${t.category==='schedule'?'selected':''}>SCHED</option>
-          <option value="delegate" ${t.category==='delegate'?'selected':''}>DEL</option>
-          <option value="eliminate" ${t.category==='eliminate'?'selected':''}>ELIM</option>
+          ${Object.entries(L.categories).map(([val, label]) => `<option value="${val}" ${t.category===val?'selected':''}>${val.split(' ')[0]}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -135,9 +161,9 @@ function renderAll() {
           ${Object.entries(L.statuses).map(([k,v]) => `<option value="${k}" ${t.status===k?'selected':''}>${v}</option>`).join('')}
         </select>
       </td>
-      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes || 'Not ekle...'}</td>
+      <td class="notes-cell" onclick="openEditModal('${t.id}')">${t.notes || L.addNotePlaceholder}</td>
     </tr>
   `).join('');
 }
 
-window.onload = () => { renderAll(); }; 
+window.onload = () => { renderAll(); };
